@@ -1,12 +1,11 @@
-import { Resend } from "resend";
-
-let resend: Resend;
+let resendClient: any = null;
 
 function getResend() {
-  if (!resend) {
-    resend = new Resend(process.env.RESEND_API_KEY);
+  if (!resendClient) {
+    const { Resend } = require("resend");
+    resendClient = new Resend(process.env.RESEND_API_KEY);
   }
-  return resend;
+  return resendClient;
 }
 
 export async function sendEmail({
