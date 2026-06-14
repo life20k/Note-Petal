@@ -88,4 +88,7 @@ declare module "lucide-react" {
   export const Laugh: Icon;
   export const Briefcase: Icon;
   export const Sparkles: Icon;
+  export const Globe: Icon;
+  export const Shield: Icon;
+  export const Zap: Icon;
 }
