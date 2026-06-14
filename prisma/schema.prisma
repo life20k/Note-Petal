@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+}
+
+model Tenant {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  businessName  String
+  logoUrl       String?
+  primaryColor  String   @default("#7C3AED")
+  secondaryColor String  @default("#F3E8FF")
+  contactEmail  String?
+  contactPhone  String?
+  address       String?
+  welcomeMessage String?
+  plan          String   @default("starter")
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  subscriptionStatus  String?  @default("inactive")
+  subscriptionPeriodEnd DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users          User[]
+  notes          Note[]
+  events         Event[]
+  messages       Message[]
+  ingredients    Ingredient[]
+  arrangements   Arrangement[]
+  bulkPurchases  BulkPurchase[]
+  salesRecords   SalesRecord[]
+  aiUsage        AiUsage[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String?
+  role      String   @default("florist")
+  password  String
+  createdAt DateTime @default(now())
+
+  notes  Note[]
+  events Event[]
+
+  @@unique([tenantId, email])
+}
+
+model Note {
+  id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  messageText   String
+  occasion      String
+  recipientName String
+  isPrinted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model Event {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  eventName     String
+  eventDate     DateTime
+  eventType     String
+  notes         String?
+  reminderSent  Boolean   @default(false)
+  reminderDate  DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  fromName  String
+  toEmail   String?
+  toPhone   String?
+  content   String
+  type      String   @default("email")
+  sentAt    DateTime @default(now())
+}
+
+model Ingredient {
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String
+  category        String
+  unit            String   @default("stem")
+  bulkPrice       Float
+  quantityPerBulk Int
+  supplier        String?
+  createdAt       DateTime @default(now())
+
+  arrangementItems ArrangementItem[]
+  bulkPurchases    BulkPurchase[]
+}
+
+model Arrangement {
+  id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  type        String
+  isTemplate  Boolean  @default(false)
+  description String?
+  desiredMargin Float  @default(50)
+  createdAt   DateTime @default(now())
+
+  items        ArrangementItem[]
+  salesRecords SalesRecord[]
+}
+
+model ArrangementItem {
+  id            String      @id @default(cuid())
+  arrangementId String
+  arrangement   Arrangement @relation(fields: [arrangementId], references: [id], onDelete: Cascade)
+  ingredientId  String
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  quantity      Float
+  unit          String      @default("stem")
+}
+
+model BulkPurchase {
+  id           String     @id @default(cuid())
+  tenantId     String
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  quantity     Int
+  totalCost    Float
+  purchaseDate DateTime @default(now())
+}
+
+model SalesRecord {
+  id            String      @id @default(cuid())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  arrangementId String
+  arrangement   Arrangement @relation(fields: [arrangementId], references: [id], onDelete: Cascade)
+  quantity      Int
+  salePrice     Float
+  costPrice     Float
+  saleDate      DateTime    @default(now())
+}
+
+model AiUsage {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  month     String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, month])
+}
