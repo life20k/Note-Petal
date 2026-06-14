@@ -1,8 +1,8 @@
 let resendClient: any = null;
 
-function getResend() {
+async function getResend() {
   if (!resendClient) {
-    const { Resend } = require("resend");
+    const { Resend } = await import("resend");
     resendClient = new Resend(process.env.RESEND_API_KEY);
   }
   return resendClient;
@@ -23,7 +23,7 @@ export async function sendEmail({
   }
 
   try {
-    await getResend().emails.send({
+    await (await getResend()).emails.send({
       from: "Note Petal <notifications@notepetal.com>",
       to,
       subject,
