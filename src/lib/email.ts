@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend;
+
+function getResend() {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function sendEmail({
   to,
@@ -11,8 +18,13 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
+  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "re_change_me") {
+    console.warn("Resend API key not configured, skipping email");
+    return false;
+  }
+
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "Note Petal <notifications@notepetal.com>",
       to,
       subject,
