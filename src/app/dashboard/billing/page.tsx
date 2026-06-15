@@ -82,6 +82,7 @@ function getPlanIndex(id: string) {
 export default function BillingPage() {
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState<string>("starter");
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [switching, setSwitching] = useState(false);
@@ -92,6 +93,7 @@ export default function BillingPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.tenant?.plan) setCurrentPlan(data.tenant.plan);
+        if (data.tenant?.trialEndsAt) setTrialEndsAt(data.tenant.trialEndsAt);
       })
       .catch(() => {});
   };
@@ -198,6 +200,16 @@ export default function BillingPage() {
                   You are currently on the{" "}
                   <strong className="capitalize">{currentPlan}</strong> plan.
                 </p>
+                {trialEndsAt && currentPlan !== "starter" && !switching && (
+                  <p className="mt-1 text-xs text-amber-600">
+                    {(() => {
+                      const daysLeft = Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                      return daysLeft > 0
+                        ? `Trial ends in ${daysLeft} day${daysLeft !== 1 ? "s" : ""} (${new Date(trialEndsAt).toLocaleDateString()})`
+                        : "Trial expired";
+                    })()}
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-gray-500">
                   Upgrade to unlock premium features like the profit calculator,
                   unlimited notes, and AI messaging.

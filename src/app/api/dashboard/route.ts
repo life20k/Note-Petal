@@ -17,6 +17,8 @@ export async function GET() {
       businessName: true,
       slug: true,
       plan: true,
+      trialEndsAt: true,
+      stripeSubscriptionId: true,
       primaryColor: true,
       secondaryColor: true,
       logoUrl: true,
@@ -24,6 +26,14 @@ export async function GET() {
       subscriptionPeriodEnd: true,
     },
   });
+
+  if (tenant?.plan === "business" && tenant?.trialEndsAt && new Date() > tenant.trialEndsAt && !tenant?.stripeSubscriptionId) {
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: { plan: "starter", trialEndsAt: null },
+    });
+    tenant.plan = "starter";
+  }
 
   const [
     totalNotes,

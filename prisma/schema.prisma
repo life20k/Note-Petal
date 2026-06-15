@@ -20,6 +20,7 @@ model Tenant {
   address       String?
   welcomeMessage String?
   plan          String   @default("starter")
+  trialEndsAt   DateTime?
   stripeCustomerId    String?
   stripeSubscriptionId String?
   subscriptionStatus  String?  @default("inactive")

@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
         businessName,
         contactEmail: email,
         contactPhone: phone,
+        plan: "business",
+        trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
         users: {
           create: {
             name,
