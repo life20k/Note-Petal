@@ -29,7 +29,4 @@ body {
   background: linear-gradient(135deg, #7C3AED, #EC4899);
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-}
+

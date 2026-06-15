@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardLayout } from "@/components/dashboard-layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import {
   Flower2,
@@ -91,63 +91,7 @@ export default function CalculatorPage() {
           ))}
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Calculator</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <QuickCalculator />
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
-  );
-}
-
-function QuickCalculator() {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-600">
-        Quickly calculate the cost and suggested price for an arrangement.
-      </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Total Ingredient Cost
-          </label>
-          <input
-            type="number"
-            id="cost"
-            step="0.01"
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-            placeholder="0.00"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Desired Margin %
-          </label>
-          <input
-            type="number"
-            id="margin"
-            defaultValue={50}
-            step="1"
-            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Suggested Price
-          </label>
-          <div className="mt-1 block w-full rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-semibold text-green-700">
-            $0.00
-          </div>
-        </div>
-      </div>
-      <p className="text-xs text-gray-500">
-        Enter your ingredient costs and desired margin to see the suggested
-        retail price.
-      </p>
-    </div>
   );
 }

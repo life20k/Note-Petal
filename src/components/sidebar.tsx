@@ -15,7 +15,6 @@ import {
   Flower2,
   ChevronLeft,
   ChevronRight,
-  Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";

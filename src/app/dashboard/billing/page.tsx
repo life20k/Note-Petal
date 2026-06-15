@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,6 +80,14 @@ function getPlanIndex(id: string) {
 }
 
 export default function BillingPage() {
+  return (
+    <Suspense fallback={<DashboardLayout><div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-purple-600" /></div></DashboardLayout>}>
+      <BillingContent />
+    </Suspense>
+  );
+}
+
+function BillingContent() {
   const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState<string>("starter");
   const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
@@ -100,8 +108,9 @@ export default function BillingPage() {
 
   useEffect(() => {
     fetchPlan();
-    fetch("/api/billing/dev-switch", { method: "GET" })
-      .then(() => setIsDev(true))
+    fetch("/api/billing/dev-switch", { method: "POST", body: JSON.stringify({ plan: "__probe__" }) })
+      .then((r) => r.json())
+      .then((data) => setIsDev(data.success === false && data.error === "Invalid plan"))
       .catch(() => setIsDev(false));
   }, []);
 

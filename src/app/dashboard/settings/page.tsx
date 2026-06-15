@@ -3,7 +3,7 @@
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { Palette, Upload, Save, ExternalLink, Copy } from "lucide-react";
+import { Palette, Save, ExternalLink, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SettingsPage() {

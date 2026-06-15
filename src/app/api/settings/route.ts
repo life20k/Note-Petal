@@ -3,7 +3,7 @@ import { requirePlan } from "@/lib/plan";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const authResult = await requirePlan("business");
+  const authResult = await requirePlan("starter");
   if ("error" in authResult) {
     return NextResponse.json({ error: authResult.error }, { status: authResult.status });
   }
@@ -16,7 +16,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
-  const authResult = await requirePlan("business");
+  const authResult = await requirePlan("starter");
   if ("error" in authResult) {
     return NextResponse.json({ error: authResult.error }, { status: authResult.status });
   }

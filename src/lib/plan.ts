@@ -44,17 +44,4 @@ export async function requirePlan(requiredPlan: PlanType = "business") {
   return { tenant, plan: tenant.plan } as const;
 }
 
-export function getPlanLimits(plan: string) {
-  const planConfig = PLANS[plan as PlanType] || PLANS.starter;
-  return {
-    notesLimit: planConfig.notesLimit,
-    eventsLimit: planConfig.eventsLimit,
-    hasCalculator: plan !== "starter",
-    hasMessaging: plan !== "starter",
-    hasAI: plan !== "starter",
-    hasCustomBranding: plan !== "starter",
-    hasWhiteLabel: plan === "enterprise",
-    hasAPIAccess: plan === "enterprise",
-    hasStaffAccounts: plan === "enterprise",
-  };
-}
+

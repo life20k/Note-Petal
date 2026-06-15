@@ -225,7 +225,10 @@ export default function CreatePage() {
   if (!tenant) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Flower2 className="h-10 w-10 animate-pulse text-purple-600" />
+        <div className="text-center">
+          <Flower2 className="mx-auto h-10 w-10 animate-pulse text-purple-600" />
+          <p className="mt-4 text-sm text-gray-500">Loading...</p>
+        </div>
       </div>
     );
   }

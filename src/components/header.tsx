@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { Bell, Search, Calendar, X } from "lucide-react";
+import { Bell, Calendar, X } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
 const pageTitles: Record<string, string> = {
