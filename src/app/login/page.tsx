@@ -29,12 +29,15 @@ function LoginForm() {
         password: form.password,
         tenantSlug: form.tenantSlug,
         redirect: false,
+        callbackUrl: "/dashboard",
       });
 
       if (result?.error) {
         toast.error("Invalid email, password, or business slug");
+      } else if (result?.url) {
+        window.location.href = result.url;
       } else {
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch {
       toast.error("Login failed");

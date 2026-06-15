@@ -14,6 +14,8 @@ import {
   Search,
   Calendar,
   FileText,
+  ExternalLink,
+  Copy,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -57,10 +59,14 @@ export default function CustomersPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [tab, setTab] = useState<"notes" | "events" | "customers">("notes");
   const [search, setSearch] = useState("");
+  const [slug, setSlug] = useState("");
 
   useEffect(() => {
     fetch("/api/notes").then((r) => r.json()).then(setNotes);
     fetch("/api/events").then((r) => r.json()).then(setEvents);
+    fetch("/api/dashboard").then((r) => r.json()).then((d) => {
+      if (d.tenant?.slug) setSlug(d.tenant.slug);
+    });
   }, []);
 
   const customers: Customer[] = (() => {
@@ -195,6 +201,43 @@ export default function CustomersPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {slug && (
+          <Card className="border-purple-200 bg-purple-50">
+            <CardContent className="py-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700">Your Customer Site</p>
+                  <p className="text-xs text-purple-600">Share this link with customers to collect notes and events</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="rounded-lg border border-purple-200 bg-white px-3 py-1.5 text-xs text-purple-700">
+                    {typeof window !== "undefined" ? window.location.origin : ""}/{slug}
+                  </code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/${slug}`);
+                      toast.success("Link copied!");
+                    }}
+                    className="rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-purple-700 hover:bg-purple-100"
+                    title="Copy link"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                  <a
+                    href={`/${slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-purple-700 hover:bg-purple-100"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Customers</h2>

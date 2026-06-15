@@ -130,7 +130,6 @@ export default function DashboardPage() {
               )}
             </CardContent>
           </Card>
-        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Card>
@@ -185,20 +184,22 @@ export default function DashboardPage() {
                   </div>
                   <ArrowRight className="h-4 w-4 text-gray-400" />
                 </Link>
-                <Link
-                  href="/dashboard/calculator"
-                  className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      Profit Calculator
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Calculate margins and track profitability
-                    </p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                </Link>
+                {stats?.tenant?.plan !== "starter" && (
+                  <Link
+                    href="/dashboard/calculator"
+                    className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50 transition-colors"
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        Profit Calculator
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Calculate margins and track profitability
+                      </p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                  </Link>
+                )}
                 <Link
                   href="/dashboard/settings"
                   className="flex items-center justify-between rounded-lg border border-gray-100 p-3 hover:bg-gray-50 transition-colors"
