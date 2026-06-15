@@ -47,8 +47,9 @@ const plans = [
       "Priority support",
       "Custom integrations",
     ],
-    cta: "Contact Sales",
+    cta: "Join Waitlist",
     popular: false,
+    comingSoon: true,
   },
 ];
 
@@ -72,14 +73,21 @@ export default function PricingPage() {
             <div
               key={plan.name}
               className={`relative rounded-2xl border-2 bg-white p-8 shadow-sm ${
-                plan.popular
-                  ? "border-purple-600 shadow-lg"
-                  : "border-gray-200"
+                plan.comingSoon
+                  ? "border-gray-200 opacity-75"
+                  : plan.popular
+                    ? "border-purple-600 shadow-lg"
+                    : "border-gray-200"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-purple-600 px-4 py-1 text-xs font-semibold text-white">
                   Most Popular
+                </div>
+              )}
+              {plan.comingSoon && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gray-500 px-4 py-1 text-xs font-semibold text-white">
+                  Coming Soon
                 </div>
               )}
 
@@ -113,16 +121,25 @@ export default function PricingPage() {
               </ul>
 
               <div className="mt-8">
-                <Link
-                  href="/signup"
-                  className={`block w-full rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
-                    plan.popular
-                      ? "bg-purple-600 text-white hover:bg-purple-700"
-                      : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {plan.comingSoon ? (
+                  <a
+                    href="mailto:hello@notepetal.com?subject=Enterprise%20Waitlist"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-3 text-center text-sm font-semibold text-gray-500 cursor-not-allowed"
+                  >
+                    {plan.cta}
+                  </a>
+                ) : (
+                  <Link
+                    href="/signup"
+                    className={`block w-full rounded-lg py-3 text-center text-sm font-semibold transition-colors ${
+                      plan.popular
+                        ? "bg-purple-600 text-white hover:bg-purple-700"
+                        : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
               </div>
             </div>
           ))}

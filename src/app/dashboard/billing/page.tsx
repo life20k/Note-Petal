@@ -17,7 +17,6 @@ import {
   Palette,
   Globe,
   Mail,
-  Smartphone,
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -64,6 +63,7 @@ const plans = [
     id: "enterprise",
     name: "Enterprise",
     price: 79,
+    comingSoon: true,
     features: [
       { text: "Everything in Business", included: true },
       { text: "White-label", included: true },
@@ -311,14 +311,21 @@ function BillingContent() {
               <Card
                 key={plan.id}
                 className={`relative ${
-                  currentPlan === plan.id
+                  plan.comingSoon ? "opacity-75" : ""
+                } ${
+                  currentPlan === plan.id && !plan.comingSoon
                     ? "border-2 border-purple-600 shadow-lg"
                     : ""
                 }`}
               >
-                {currentPlan === plan.id && (
+                {currentPlan === plan.id && !plan.comingSoon && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-purple-600 px-3 py-1 text-xs font-semibold text-white">
                     Current Plan
+                  </div>
+                )}
+                {plan.comingSoon && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gray-500 px-3 py-1 text-xs font-semibold text-white">
+                    Coming Soon
                   </div>
                 )}
                 <CardHeader className="pt-8">
@@ -352,7 +359,14 @@ function BillingContent() {
                       </li>
                     ))}
                   </ul>
-                  {currentPlan !== plan.id && (
+                  {plan.comingSoon ? (
+                    <a
+                      href="mailto:hello@notepetal.com?subject=Enterprise%20Waitlist"
+                      className="mt-6 block w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 text-center text-sm font-medium text-gray-400 cursor-not-allowed"
+                    >
+                      Join Waitlist
+                    </a>
+                  ) : currentPlan !== plan.id ? (
                     <button
                       onClick={() => handlePlanAction(plan.id)}
                       disabled={loading || switching}
@@ -372,8 +386,7 @@ function BillingContent() {
                         `Upgrade to ${plan.name}`
                       )}
                     </button>
-                  )}
-                  {currentPlan === plan.id && currentPlan !== "starter" && (
+                  ) : currentPlan === plan.id && currentPlan !== "starter" ? (
                     <button
                       onClick={handlePortal}
                       disabled={portalLoading}
@@ -385,7 +398,7 @@ function BillingContent() {
                         "Manage Subscription"
                       )}
                     </button>
-                  )}
+                   ) : null}
                 </CardContent>
               </Card>
             ))}
