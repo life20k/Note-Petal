@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,8 +19,6 @@ import {
   Mail,
   Smartphone,
   Users,
-  Shield,
-  Zap,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -76,20 +75,43 @@ const plans = [
   },
 ];
 
+function getPlanIndex(id: string) {
+  return plans.findIndex((p) => p.id === id);
+}
+
 export default function BillingPage() {
+  const searchParams = useSearchParams();
   const [currentPlan, setCurrentPlan] = useState<string>("starter");
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [isDev, setIsDev] = useState(false);
 
-  useEffect(() => {
+  const fetchPlan = () => {
     fetch("/api/dashboard")
       .then((r) => r.json())
       .then((data) => {
         if (data.tenant?.plan) setCurrentPlan(data.tenant.plan);
       })
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchPlan();
+    fetch("/api/billing/dev-switch", { method: "GET" })
+      .then(() => setIsDev(true))
+      .catch(() => setIsDev(false));
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      toast.success("Subscription updated successfully!");
+      fetchPlan();
+    }
+    if (searchParams.get("canceled") === "true") {
+      toast.error("Checkout was canceled.");
+    }
+  }, [searchParams]);
 
   const handleUpgrade = async (planId: string) => {
     setLoading(true);
@@ -151,6 +173,14 @@ export default function BillingPage() {
     }
   };
 
+  const handlePlanAction = (planId: string) => {
+    if (isDev) {
+      handleDevSwitch(planId);
+    } else {
+      handleUpgrade(planId);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-5xl">
@@ -191,39 +221,38 @@ export default function BillingPage() {
           </CardContent>
         </Card>
 
-        {/* Dev Mode Switch */}
-        <Card className="border-dashed border-amber-300 bg-amber-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-700 text-sm">
-              <Zap className="h-4 w-4" />
-              Dev Mode — Preview Plans
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-amber-600 mb-3">
-              Switch plans instantly to preview features. In production, this
-              goes through Stripe checkout.
-            </p>
-            <div className="flex gap-2">
-              {plans.map((plan) => (
-                <button
-                  key={plan.id}
-                  onClick={() => handleDevSwitch(plan.id)}
-                  disabled={switching || currentPlan === plan.id}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                    currentPlan === plan.id
-                      ? "bg-amber-600 text-white"
-                      : "bg-white border border-amber-300 text-amber-700 hover:bg-amber-100"
-                  } disabled:opacity-50`}
-                >
-                  {currentPlan === plan.id ? `Current: ${plan.name}` : plan.name}
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {isDev && (
+          <Card className="border-dashed border-amber-300 bg-amber-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-amber-700 text-sm">
+                <span className="text-amber-500">&#9889;</span>
+                Dev Mode — Preview Plans
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-amber-600 mb-3">
+                Switch plans instantly to preview features.
+              </p>
+              <div className="flex gap-2">
+                {plans.map((plan) => (
+                  <button
+                    key={plan.id}
+                    onClick={() => handleDevSwitch(plan.id)}
+                    disabled={switching || currentPlan === plan.id}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      currentPlan === plan.id
+                        ? "bg-amber-600 text-white"
+                        : "bg-white border border-amber-300 text-amber-700 hover:bg-amber-100"
+                    } disabled:opacity-50`}
+                  >
+                    {currentPlan === plan.id ? `Current: ${plan.name}` : plan.name}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Plan Comparison */}
         <div>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             Compare Plans
@@ -276,26 +305,19 @@ export default function BillingPage() {
                   </ul>
                   {currentPlan !== plan.id && (
                     <button
-                      onClick={() =>
-                        plans.findIndex((p) => p.id === plan.id) <
-                        plans.findIndex((p) => p.id === currentPlan)
-                          ? handleDevSwitch(plan.id)
-                          : handleUpgrade(plan.id)
-                      }
+                      onClick={() => handlePlanAction(plan.id)}
                       disabled={loading || switching}
                       className="mt-6 w-full rounded-lg py-2.5 text-sm font-medium text-white disabled:opacity-50"
                       style={{
                         backgroundColor:
-                          plans.findIndex((p) => p.id === plan.id) <
-                          plans.findIndex((p) => p.id === currentPlan)
+                          getPlanIndex(plan.id) < getPlanIndex(currentPlan)
                             ? "#6B7280"
                             : "#7C3AED",
                       }}
                     >
                       {loading || switching ? (
                         <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-                      ) : plans.findIndex((p) => p.id === plan.id) <
-                        plans.findIndex((p) => p.id === currentPlan) ? (
+                      ) : getPlanIndex(plan.id) < getPlanIndex(currentPlan) ? (
                         `Downgrade to ${plan.name}`
                       ) : (
                         `Upgrade to ${plan.name}`
@@ -321,7 +343,6 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {/* Feature Highlights */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">What you get with each plan</CardTitle>

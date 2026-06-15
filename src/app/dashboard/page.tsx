@@ -8,9 +8,12 @@ import {
   TrendingUp,
   Flower2,
   ArrowRight,
+  ExternalLink,
+  Copy,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
@@ -82,6 +85,49 @@ export default function DashboardPage() {
               <div className="text-3xl font-bold text-gray-900">
                 {stats?.totalArrangements ?? "—"}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Customer Site</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats?.tenant?.slug ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Share this link with your customers to create notes and events:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 overflow-hidden text-ellipsis whitespace-nowrap">
+                      {typeof window !== "undefined" ? window.location.origin : ""}/{stats.tenant.slug}
+                    </code>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/${stats.tenant.slug}`;
+                        navigator.clipboard.writeText(url);
+                        toast.success("Link copied!");
+                      }}
+                      className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      title="Copy link"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                    <a
+                      href={`/${stats.tenant.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      title="Open in new tab"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Loading...</p>
+              )}
             </CardContent>
           </Card>
         </div>

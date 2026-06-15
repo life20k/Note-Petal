@@ -3,7 +3,7 @@
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { Palette, Upload, Save } from "lucide-react";
+import { Palette, Upload, Save, ExternalLink, Copy } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function SettingsPage() {
@@ -19,6 +19,10 @@ export default function SettingsPage() {
     secondaryColor: "#F3E8FF",
     logoUrl: "",
   });
+
+  const customerUrl = settings?.slug
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/${settings.slug}`
+    : "";
 
   useEffect(() => {
     fetch("/api/settings")
@@ -59,6 +63,44 @@ export default function SettingsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6 max-w-3xl">
+        {customerUrl && (
+          <Card className="border-purple-200 bg-purple-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-purple-700 text-sm">
+                <ExternalLink className="h-4 w-4" />
+                Your Customer Site
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-purple-600 mb-2">
+                Share this link with your customers so they can create notes and events:
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 rounded-lg border border-purple-200 bg-white px-3 py-2 text-sm text-purple-700">
+                  {customerUrl}
+                </code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(customerUrl);
+                    toast.success("Link copied!");
+                  }}
+                  className="rounded-lg border border-purple-300 bg-white px-3 py-2 text-sm text-purple-700 hover:bg-purple-100"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+                <a
+                  href={customerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-purple-300 bg-white px-3 py-2 text-sm text-purple-700 hover:bg-purple-100"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>Business Information</CardTitle>

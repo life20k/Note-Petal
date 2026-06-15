@@ -11,11 +11,12 @@ import { Suspense } from "react";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tenantSlug = searchParams.get("tenant") || "";
+  const initialSlug = searchParams.get("tenant") || "";
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
+    tenantSlug: initialSlug,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,12 +27,12 @@ function LoginForm() {
       const result = await signIn("credentials", {
         email: form.email,
         password: form.password,
-        tenantSlug,
+        tenantSlug: form.tenantSlug,
         redirect: false,
       });
 
       if (result?.error) {
-        toast.error("Invalid email or password");
+        toast.error("Invalid email, password, or business slug");
       } else {
         router.push("/dashboard");
       }
@@ -58,22 +59,20 @@ function LoginForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4" suppressHydrationWarning>
-            {!tenantSlug && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Business Slug
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={tenantSlug}
-                  onChange={() => {}}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                  placeholder="your-business-slug"
-                  disabled
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Business Slug
+              </label>
+              <input
+                type="text"
+                required
+                value={form.tenantSlug}
+                onChange={(e) => setForm({ ...form, tenantSlug: e.target.value })}
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                placeholder="your-business-slug"
+                suppressHydrationWarning
+              />
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
