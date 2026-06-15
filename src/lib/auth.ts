@@ -16,24 +16,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         tenantSlug: { label: "Tenant", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.tenantSlug) {
+        if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        const tenant = await prisma.tenant.findUnique({
-          where: { slug: credentials.tenantSlug as string },
-        });
+        const slug = credentials.tenantSlug as string | undefined;
 
-        if (!tenant) return null;
+        let user;
+        let tenant;
 
-        const user = await prisma.user.findFirst({
-          where: {
-            tenantId: tenant.id,
-            email: credentials.email as string,
-          },
-        });
+        if (slug) {
+          tenant = await prisma.tenant.findUnique({
+            where: { slug },
+          });
+          if (!tenant) return null;
 
-        if (!user) return null;
+          user = await prisma.user.findFirst({
+            where: {
+              tenantId: tenant.id,
+              email: credentials.email as string,
+            },
+          });
+        } else {
+          user = await prisma.user.findFirst({
+            where: { email: credentials.email as string },
+            include: { tenant: true },
+          });
+          if (user) {
+            tenant = await prisma.tenant.findUnique({
+              where: { id: user.tenantId },
+            });
+          }
+        }
+
+        if (!user || !tenant) return null;
 
         const isValid = await bcrypt.compare(
           credentials.password as string,
