@@ -108,6 +108,15 @@ function BillingContent() {
 
   useEffect(() => {
     fetchPlan();
+    // Also sync with Stripe to catch any missed webhooks
+    fetch("/api/billing/sync", { method: "POST" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.synced && data.plan) {
+          setCurrentPlan(data.plan);
+        }
+      })
+      .catch(() => {});
     fetch("/api/billing/dev-switch", { method: "POST", body: JSON.stringify({ plan: "__probe__" }) })
       .then((r) => r.json())
       .then((data) => setIsDev(data.success === false && data.error === "Invalid plan"))
@@ -116,8 +125,27 @@ function BillingContent() {
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      toast.success("Subscription updated successfully!");
-      fetchPlan();
+      toast.success("Payment received! Syncing your plan...");
+      // First sync with Stripe directly (no webhook dependency), then poll
+      fetch("/api/billing/sync", { method: "POST" })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.synced && data.plan) {
+            setCurrentPlan(data.plan);
+            toast.success(`Plan updated to ${data.plan}!`);
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          // Also poll a few times in case sync was slow
+          let attempts = 0;
+          const interval = setInterval(() => {
+            attempts++;
+            fetchPlan();
+            if (attempts >= 5) clearInterval(interval);
+          }, 2000);
+          setTimeout(() => clearInterval(interval), 12000);
+        });
     }
     if (searchParams.get("canceled") === "true") {
       toast.error("Checkout was canceled.");
