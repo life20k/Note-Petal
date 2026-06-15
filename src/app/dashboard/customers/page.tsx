@@ -62,11 +62,11 @@ export default function CustomersPage() {
   const [slug, setSlug] = useState("");
 
   useEffect(() => {
-    fetch("/api/notes").then((r) => r.json()).then(setNotes);
-    fetch("/api/events").then((r) => r.json()).then(setEvents);
+    fetch("/api/notes").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setNotes(d); }).catch(() => {});
+    fetch("/api/events").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setEvents(d); }).catch(() => {});
     fetch("/api/dashboard").then((r) => r.json()).then((d) => {
-      if (d.tenant?.slug) setSlug(d.tenant.slug);
-    });
+      if (d?.tenant?.slug) setSlug(d.tenant.slug);
+    }).catch(() => {});
   }, []);
 
   const customers: Customer[] = (() => {

@@ -27,7 +27,7 @@ export async function GET() {
     },
   });
 
-  if (tenant?.plan === "business" && tenant?.trialEndsAt && new Date() > tenant.trialEndsAt && !tenant?.stripeSubscriptionId) {
+  if (tenant && tenant.plan === "business" && tenant.trialEndsAt && new Date() > tenant.trialEndsAt && !tenant.stripeSubscriptionId) {
     await prisma.tenant.update({
       where: { id: tenantId },
       data: { plan: "starter", trialEndsAt: null },
